@@ -289,6 +289,12 @@ void ChidbootDlg::AddInfo(LPCTSTR lpInfo)
 	m_listboxInfo.SetCurSel(m_listboxInfo.GetCount() - 1);
 }
 
+/**
+ * get device list, and save to combo device list(m_ComboDevList).
+ * fun_get_device_list() is used. 
+ * 
+ * \return the number of device.
+ */
 int ChidbootDlg::_setup_device_list()
 {
 	int n_dev(0);
@@ -311,6 +317,12 @@ int ChidbootDlg::_setup_device_list()
 	return n_dev;
 }
 
+/**
+ * 
+ * used .LPU237_fw_open(), LPU237_fw_msr_get_id(), LPU237_fw_msr_get_name() and LPU237_fw_msr_get_version()
+ * 
+ * \return 
+ */
 bool ChidbootDlg::_setup_target_device()
 {
 	bool b_result(false);
@@ -396,7 +408,7 @@ bool ChidbootDlg::_setup_target_device()
 
 		sMsg.Format(_T(" get version : success : V%d.%d"),
 			m_Dll.LPU237_fw_msr_get_version_major(&m_vVersion[0]),
-			m_Dll.LPU237_fw_msr_get_version_minor(&m_vVersion[0])
+			m_Dll.LPU237_fw_msr_get_version_minor(&m_vVersion[1])
 		);
 		pushInfoQ(sMsg);
 
