@@ -10,6 +10,8 @@
 #include <queue>
 #include <list>
 
+#include <ct_type.h>
+
 #include "Lpu237Fw.h"
 
 #define	WM_MSR		WM_APP+100
@@ -22,7 +24,6 @@ public:
 	ChidbootDlg(CWnd* pParent = nullptr);	// standard constructor
 
 private:
-	typedef	std::vector<unsigned char>	_type_v_buffer;
 	typedef	std::tuple<std::wstring, COLORREF>	_type_info_item;
 	typedef	std::queue<_type_info_item>			_type_info_queue;
 	typedef	std::queue<DWORD>					_type_index_queue;
@@ -33,23 +34,32 @@ private:
 		TIMER_ID_CARD_CHK = 10001,
 		TIMER_INTERVAL_CARD_CHK = 1000,
 		TIMER_COMPLETE_SUCCESS_ID = 10002,
-		TIMER_COMPLETE_FAIL_ID = 10002,
+		TIMER_COMPLETE_FAIL_ID = 10003,
 	};
 
 	enum {
 		UPDATE_WAIT_TIME = 180 * 1000	//unit mmsec
 	};
 
+	enum {
+		MAX_SECTOR_NUMBER = 6 //the numnber of LPC1343 flash sector( except boot sector(0 sector) and system parameter sector(7 sector) ) 
+	};
+
+	typedef	struct {
+		HANDLE h_dev;
+		_ns_tools::type_v_buffer v_id;
+		_ns_tools::type_v_buffer v_name;
+		_ns_tools::type_v_buffer v_version;
+	}_type_target_info;
+
 	static const unsigned char s_default_dev_name[16];
 
 
 private:
 	CLpu237Fw m_Dll;
-	HANDLE m_hDev;
-	int m_nIndex;
-	ChidbootDlg::_type_v_buffer m_vId;
-	ChidbootDlg::_type_v_buffer m_vName;
-	ChidbootDlg::_type_v_buffer m_vVersion;
+
+	ChidbootDlg::_type_target_info m_target;
+
 	std::wstring m_sRom;
 	DWORD m_dw_fw_index;
 	//
@@ -67,9 +77,11 @@ private:
 
 
 private:
+	bool _set_up_all();
+
 	int _setup_device_list();
-	bool _setup_target_device();
-	bool _setup_fw_file();
+	bool _setup_target_device(size_t n_index);
+	std::pair<bool,std::wstring> _setup_fw_file();
 	bool _start_update();
 
 	int GetStringFromMultiString(std::list<std::wstring>& listStr, LPCTSTR szMultiStr);
@@ -78,11 +90,11 @@ private:
 
 	bool fun_get_device_list(std::list<std::wstring>& listdev);
 
-	bool is_all_zero_name()
+	bool _is_all_zero_id(CONST _ns_tools::type_v_buffer & v_id)
 	{
 		bool b_is_all_zero(true);
 
-		for_each(begin(m_vId), end(m_vId), [&](unsigned char c) {
+		std::for_each(std::cbegin(v_id), std::cend(v_id), [&](unsigned char c) {
 			if (c != 0)
 				b_is_all_zero = false;
 			});
@@ -166,4 +178,15 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedButtonUpdate();
 	CComboBox m_ComboDevList;
+
+private:
+	_ns_tools::type_list_wstring m_list_target_path;
+	bool m_b_working;
+
+private:
+	void _ini_target();
+	void _set_title(const std::wstring& s_title = L"");
+
+public:
+	afx_msg void OnClose();
 };
