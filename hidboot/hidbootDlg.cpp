@@ -7,12 +7,12 @@
 #include "hidboot.h"
 #include "hidbootDlg.h"
 #include "afxdialogex.h"
+#include <ct_file.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-#include <ct_file.h>
 
 // CAboutDlg dialog used for App About
 
